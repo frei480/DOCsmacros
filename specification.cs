@@ -12,9 +12,6 @@ using System.Linq.Expressions;
 
 using TFlex.Reporting.CAD.MacroGenerator.ObjectModel;
 
-using TFlex.PdmFramework.Remarks;
-
-
 public class Macro : ReportBaseMacroProvider
 {
     public class Cell
@@ -92,18 +89,20 @@ public class Macro : ReportBaseMacroProvider
             {"Типоразмер", new Guid("adb931cf-7978-40f4-a4d7-4398c3e147de")},
             {"Типкрепежа", new Guid("f868c90a-ded0-4e47-b1c3-6683e8048f81")},
             //ГОСТ 1759.0
-            {"Класс точности", new Guid("")},
-            {"Исполнение", new Guid("")},
-            {"D резьбы", new Guid("")},
-            {"Шаг резьбы", new Guid("")},
-            {"Напр. резьбы", new Guid("")},
-            {"Поле допуска резьбы", new Guid("")},
-            {"Длина изделия", new Guid("")},
-            {"Класс прочности", new Guid("")},
-            {"Указание стали", new Guid("")},
-            {"Марка материала", new Guid("")},
-            {"Вид покрытия", new Guid("")},
-            {"Толщина покрытия", new Guid("")},
+            {"Наименование изделия", new Guid("a745c693-b2f9-42dd-a46b-6c48e855bcb5")},
+            {"Класс точности", new Guid("b849d3c8-1b72-4b48-a17e-377b718a7bce")},
+            {"Исполнение", new Guid("8ebaec80-36f7-47c5-8fda-383f60cb7d6d")},
+            {"D резьбы", new Guid("220b404f-8b21-4b53-88a0-6b8b2a701cdf")},
+            {"Шаг резьбы", new Guid("042e24bc-a291-401b-bc79-1eb7e0a49cd7")},
+            {"Напр. резьбы", new Guid("afdccdf8-ae0c-4c61-8da8-a0950f5cc825")},
+            {"Поле допуска резьбы", new Guid("08b7ae9a-b0a2-4b55-bdff-fdf3080472ec")},
+            {"Длина изделия", new Guid("e7d19bfa-afbf-4706-b4fd-452252b65810")},
+            {"Класс прочности", new Guid("b06b5c63-afa4-4f5b-99ea-5d20daf62b6f")},
+            {"Указание стали", new Guid("8e2c5e27-6e29-4fd4-ac3c-43536c61e142")},
+            {"Марка материала", new Guid("90869e73-7f63-4cfd-b6c5-a1ad5c91bc27")},
+            {"Вид покрытия", new Guid("a887a96f-ede8-4cc4-b704-02ea78c3d342")},
+            {"Толщина покрытия", new Guid("4d5f4eed-cc83-41b2-8883-e9a971ef6a44")},
+            {"Стандарт", new Guid("ed49d263-9df9-4d6a-8af7-2fa69f448d47")},
         };
     private static Dictionary<String, String> SingularPluralMap = new Dictionary<string, string>()
         {
@@ -179,6 +178,7 @@ public class Macro : ReportBaseMacroProvider
             records.Add(header);
             filling_by_list(variable_part, v, records);
         }
+        print_test(records);
     }
     public void filling_by_list(List<NomenclatureObject> section, NomenclatureObject parent, List<Record> rl)
     {
@@ -198,7 +198,6 @@ public class Macro : ReportBaseMacroProvider
                 case "Материалы": sl["Materials"].Add(child); break;
                 case "Комплекты": sl["Kits"].Add(child); break;
             }
-
         }
             
         rl.AddRange( MakeList( sl["Documentation"].OrderBy(obj => obj[Guids["Обозначение"]].Value).ToList(), parent, "Документация"));
@@ -234,6 +233,7 @@ public class Macro : ReportBaseMacroProvider
             }
         }
     }
+    
     public List<Record> MakeListSti(List<ReferenceObject> list, NomenclatureObject parent, string name_sec)
     {
         if (list == null || list.Count == 0)
@@ -255,7 +255,7 @@ public class Macro : ReportBaseMacroProvider
         {
             if (group.Count > 1)
             {
-                string NamePart = group.PartList.FirstOrDefault()[Guids["Наименвоание изделия"]].GetString();
+                string NamePart = group.PartList.FirstOrDefault()[Guids["Наименование изделия"]].GetString();
                 string PluralName = SingularPluralMap.ContainsKey(NamePart) ? SingularPluralMap[NamePart] : NamePart;
                 Record groupHeader = new Record();
                 groupHeader["Наименование"].value = PluralName + " " + group.GroupName; ;
@@ -314,8 +314,10 @@ public class Macro : ReportBaseMacroProvider
         if (list == null || list.Count == 0)
         {
             return new List<Record>();
-        }
+        }        
         var records = new List<Record>();
+        Record header = new Record(true);
+        header["Наименование"].value = name_sec;
         foreach (var child in list.Distinct())
         {
             Record item = new Record();
