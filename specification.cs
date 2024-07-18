@@ -318,6 +318,7 @@ public class Macro : ReportBaseMacroProvider
         var records = new List<Record>();
         Record header = new Record(true);
         header["Наименование"].value = name_sec;
+        records.Add(header);
         foreach (var child in list.Distinct())
         {
             Record item = new Record();
