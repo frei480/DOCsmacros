@@ -164,6 +164,7 @@ public class Macro : ReportBaseMacroProvider
         }
 
         var constantPart = allPart.Except(variable_part).ToList();
+        Message("123", $"constant part count {constantPart.Count.ToString()} ");
         filling_by_list(constantPart, base_version, records);
         //Переменные данные для исполнений
         records.Add(new Record());
@@ -176,14 +177,15 @@ public class Macro : ReportBaseMacroProvider
             Record header = new Record(true);
             header["Наименование"].value = v.Denotation;
             records.Add(header);
-            filling_by_list(variable_part, v, records);
+            var childs = v.Children.OfType<NomenclatureObject>().Except(constantPart).ToList();
+            filling_by_list(childs, v, records);
         }
         print_test(records);
     }
     public void filling_by_list(List<NomenclatureObject> section, NomenclatureObject parent, List<Record> rl)
     {
         SectionList sl = new SectionList();
-        
+        parent.Children.Reload();
         foreach (NomenclatureObject obj in section.Where(o => o.GetParentLink(parent) != null))
         {
             var child = obj.GetParentLink(parent).ChildObject;
@@ -240,6 +242,7 @@ public class Macro : ReportBaseMacroProvider
         {
             return new List<Record>();
         }
+        //list = list.Distinct().ToList();
         var records = new List<Record>();
         Record header = new Record(true);
         header["Наименование"].value = name_sec;
